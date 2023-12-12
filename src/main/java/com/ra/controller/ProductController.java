@@ -9,9 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
@@ -36,40 +35,34 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
-        Category category = product.getCategory();
-        if (category != null) {
-            Category savedCategory = categoryService.save(category);
-            product.setCategory(savedCategory);
-        }
-
-        Product savedProduct = productService.save(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+        return saveOrUpdateProduct(product);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> edit(@RequestBody Product updatedProduct, @PathVariable("id") Long id) {
-        Product existingProduct = productService.findById(id);
-        if (existingProduct != null) {
-            existingProduct.setProductName(updatedProduct.getProductName());
-            existingProduct.setProductPrice(updatedProduct.getProductPrice());
-
-            Category updatedCategory = updatedProduct.getCategory();
-            if (updatedCategory != null) {
-                Category existingCategory = existingProduct.getCategory();
-                if (existingCategory != null) {
-                    existingCategory.setCategoryName(updatedCategory.getCategoryName());
-                    existingCategory.setCategoryStatus(updatedCategory.getCategoryStatus());
-                } else {
-                    existingProduct.setCategory(updatedCategory);
-                }
-            }
-
-            Product savedProduct = productService.save(existingProduct);
-            return ResponseEntity.ok(savedProduct);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        updatedProduct.setId(id);
+        return saveOrUpdateProduct(updatedProduct);
     }
 
+    private ResponseEntity<Product> saveOrUpdateProduct(Product product) {
+        Category category = product.getCategory();
+        if (category != null && category.getId() == null) {
+            Category savedCategory = categoryService.save(category);
+            product.setCategory(savedCategory);
+        } else if (category != null) {
+            Category existingCategory = categoryService.findById(category.getId());
+            if (existingCategory != null) {
+                existingCategory.setCategoryName(category.getCategoryName());
+                existingCategory.setCategoryStatus(category.getCategoryStatus());
+                categoryService.save(existingCategory);
+                product.setCategory(existingCategory);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        Product savedProduct = productService.save(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {

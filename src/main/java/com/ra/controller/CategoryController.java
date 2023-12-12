@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 public class CategoryController {
     private final CategoryService categoryService;
 
@@ -20,8 +20,8 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<Category>> findAll() {
-        List<Category> list = categoryService.findAll();
-        return ResponseEntity.ok(list);
+        List<Category> categories = categoryService.findAll();
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
@@ -32,15 +32,17 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<Category> create(@RequestBody Category category) {
-        Category saveResult = categoryService.save(category);
-        return saveResult != null ? ResponseEntity.status(HttpStatus.CREATED).body(saveResult)
-                : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        Category savedCategory = categoryService.save(category);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> edit(@RequestBody Category category, @PathVariable("id") Long id) {
-        if (categoryService.findById(id) != null) {
-            return ResponseEntity.ok(categoryService.save(category));
+    public ResponseEntity<Category> edit(@RequestBody Category updatedCategory, @PathVariable("id") Long id) {
+        Category existingCategory = categoryService.findById(id);
+        if (existingCategory != null) {
+            updatedCategory.setId(id);
+            Category savedCategory = categoryService.save(updatedCategory);
+            return ResponseEntity.ok(savedCategory);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

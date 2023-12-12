@@ -1,5 +1,6 @@
 package com.ra.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +12,7 @@ public class Product {
     private Double productPrice;
     @ManyToOne
     @JoinColumn(name = "categoryId", referencedColumnName = "id")
+    @JsonIgnore
     private Category category;
 
     public Product() {
