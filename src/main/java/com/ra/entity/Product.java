@@ -12,7 +12,6 @@ public class Product {
     private Double productPrice;
     @ManyToOne
     @JoinColumn(name = "categoryId", referencedColumnName = "id")
-    @JsonIgnore
     private Category category;
 
     public Product() {

@@ -3,7 +3,7 @@ package com.ra.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class Category {
@@ -12,11 +12,11 @@ public class Category {
     private Long id;
     private String categoryName;
     private Boolean categoryStatus;
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @JsonIgnore
-    private Set<Product> products;
+    private List<Product> products;
 
-    public Category(Long id, String categoryName, Boolean categoryStatus, Set<Product> products) {
+    public Category(Long id, String categoryName, Boolean categoryStatus, List<Product> products) {
         this.id = id;
         this.categoryName = categoryName;
         this.categoryStatus = categoryStatus;
@@ -51,11 +51,11 @@ public class Category {
         this.categoryStatus = categoryStatus;
     }
 
-    public Set<Product> getProducts() {
+    public List<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(Set<Product> products) {
+    public void setProducts(List<Product> products) {
         this.products = products;
     }
 }
