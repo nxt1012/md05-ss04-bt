@@ -3,6 +3,8 @@ package com.ra.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Product {
     @Id
@@ -13,7 +15,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "categoryId", referencedColumnName = "id")
     private Category category;
-
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Image> images;
     public Product() {
     }
 
@@ -54,5 +57,13 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }
